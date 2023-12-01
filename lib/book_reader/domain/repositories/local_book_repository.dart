@@ -6,6 +6,8 @@ abstract class LocalBookRepository {
 
   ResultFuture<List<Book>> getBooks();
 
+  ResultFuture<List<Book>> getFavoriteBooks();
+
   ResultFuture<void> favoriteBook({required int id});
 
   ResultFuture<void> removeBook({required int id});
