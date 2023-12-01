@@ -2,12 +2,12 @@ import 'package:ebook_reader/book_reader/domain/repositories/remote_book_reposit
 import 'package:ebook_reader/core/usecases/usecases.dart';
 import 'package:ebook_reader/core/utils/typedef.dart';
 
-class DownloadBook extends UseCaseWithParams<void, String> {
+class DownloadBook extends UseCaseWithParams<void, int> {
   DownloadBook(this._repository);
 
   final RemoteBookRepository _repository;
 
   @override
-  ResultFuture<void> call(String params) async =>
+  ResultFuture<void> call(int params) async =>
       _repository.downloadBook(id: params);
 }

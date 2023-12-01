@@ -15,7 +15,7 @@ class BookModel extends Book {
 
   const BookModel.empty()
       : this(
-            id: "emptyId",
+            id: 1,
             title: "emptyTitle",
             author: "emtpyAuthor",
             coverUrl: "emptyCoverUrl",
@@ -24,19 +24,19 @@ class BookModel extends Book {
 
   BookModel.fromMap(DataMap map)
       : this(
-          id: map["id"] as String,
+          id: map["id"] as int,
           title: map["title"] as String,
           author: map["author"] as String,
-          coverUrl: map["coverUrl"] as String,
-          downloadUrl: map["downloadUrl"] as String,
+          coverUrl: map["cover_url"] as String,
+          downloadUrl: map["download_url"] as String,
         );
 
   DataMap toMap() => {
         'id': id,
         'title': title,
         'author': author,
-        'coverUrl': coverUrl,
-        'downloadUrl': downloadUrl,
+        'cover_url': coverUrl,
+        'download_url': downloadUrl,
         'favorite': favorite
       };
 
@@ -46,7 +46,7 @@ class BookModel extends Book {
   String toJson() => jsonEncode(toMap());
 
   BookModel copyWith({
-    String? id,
+    int? id,
     String? title,
     String? author,
     String? coverUrl,
@@ -58,6 +58,6 @@ class BookModel extends Book {
         title: title ?? this.title,
         author: author ?? this.author,
         coverUrl: coverUrl ?? this.coverUrl,
-        downloadUrl: downloadUrl ?? this.coverUrl);
+        downloadUrl: downloadUrl ?? this.downloadUrl);
   }
 }

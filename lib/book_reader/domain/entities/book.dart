@@ -10,7 +10,7 @@ class Book extends Equatable {
     required this.favorite,
   });
 
-  final String id;
+  final int id;
   final String title;
   final String author;
   final String coverUrl;
@@ -19,7 +19,7 @@ class Book extends Equatable {
 
   const Book.empty()
       : this(
-            id: "_emptyId",
+            id: 1,
             title: "_emptyTitle",
             author: "emptyAuthor",
             coverUrl: "emptyCoverUrl",

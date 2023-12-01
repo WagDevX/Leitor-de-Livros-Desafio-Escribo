@@ -6,7 +6,7 @@ abstract class RemoteBookRepository {
 
   ResultFuture<List<Book>> getBooks();
 
-  ResultFuture<void> favoriteBook({required String id});
+  ResultFuture<void> favoriteBook({required int id});
 
-  ResultFuture<void> downloadBook({required String id});
+  ResultFuture<void> downloadBook({required int id});
 }
