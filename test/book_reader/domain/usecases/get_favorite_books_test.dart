@@ -2,7 +2,6 @@ import 'package:dartz/dartz.dart';
 import 'package:ebook_reader/book_reader/domain/entities/book.dart';
 import 'package:ebook_reader/book_reader/domain/repositories/local_book_repository.dart';
 import 'package:ebook_reader/book_reader/domain/usecases/get_favorite_books.dart';
-import 'package:ebook_reader/book_reader/domain/usecases/get_local_books.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
