@@ -1,24 +1,24 @@
 import 'package:dartz/dartz.dart';
 import 'package:ebook_reader/book_reader/domain/entities/book.dart';
-import 'package:ebook_reader/book_reader/domain/repository/book_repository.dart';
+import 'package:ebook_reader/book_reader/domain/repositories/remote_book_repository.dart';
 import 'package:ebook_reader/book_reader/domain/usecases/favorite_book.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import 'book_repository_mock.dart';
+import 'book_repository_mocks.dart';
 
 void main() {
-  late BookRepository repository;
+  late RemoteBookRepository repository;
   late FavoriteBook usecase;
 
   setUp(() {
-    repository = MockBookRepository();
+    repository = MockRemoteBookRepository();
     usecase = FavoriteBook(repository);
   });
 
   const testBook = Book.empty();
 
-  test('should successfuly call [BookRepository.favoriteBook]', () async {
+  test('should successfuly call [RemoteBookRepository.favoriteBook]', () async {
     when(() => repository.favoriteBook(id: any(named: 'id')))
         .thenAnswer((_) async => const Right(null));
 
