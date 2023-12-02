@@ -20,13 +20,13 @@ void main() {
   });
 
   test('should successfuly call [LocalBookRepository.removeBook]', () async {
-    when(() => repository.removeBook(id: any(named: 'id')))
+    when(() => repository.removeBook(key: any(named: 'key')))
         .thenAnswer((_) async => const Right(null));
 
-    final response = await usecase(testBook.id);
+    final response = await usecase(testBook.id.toString());
 
     expect(response, equals(const Right<dynamic, void>(null)));
-    verify(() => repository.removeBook(id: testBook.id)).called(1);
+    verify(() => repository.removeBook(key: testBook.id.toString())).called(1);
     verifyNoMoreInteractions(repository);
   });
 }
