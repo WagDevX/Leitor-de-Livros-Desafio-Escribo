@@ -13,8 +13,8 @@ import 'package:dio/dio.dart';
 class BookLocalDataSourceImpl implements BookLocalDataSource {
   BookLocalDataSourceImpl(this._favoriteBooksBox, this._booksBox);
 
-  final Box _favoriteBooksBox;
-  final Box _booksBox;
+  final Box<bool> _favoriteBooksBox;
+  final Box<BookModel> _booksBox;
 
   @override
   Future<void> favoriteBook({required int id}) async {
