@@ -11,4 +11,6 @@ abstract class LocalBookRepository {
   ResultFuture<void> favoriteBook({required int id});
 
   ResultFuture<void> removeBook({required int id});
+
+  ResultFuture<void> downloadBook({required Book book});
 }

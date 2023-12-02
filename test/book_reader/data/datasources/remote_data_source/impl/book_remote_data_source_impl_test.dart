@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:ebook_reader/book_reader/data/datasources/local_data_source/impl/book_local_data_source_impl.dart';
 import 'package:ebook_reader/book_reader/data/datasources/remote_data_source/impl/book_remote_data_source_impl.dart';
 import 'package:ebook_reader/book_reader/data/models/book_model.dart';
 import 'package:ebook_reader/core/error/exceptions.dart';
@@ -8,6 +9,8 @@ import 'package:mocktail/mocktail.dart';
 import 'package:http/http.dart' as http;
 
 class MockClient extends Mock implements http.Client {}
+
+class MockLocalDataSourceImpl extends Mock implements BookLocalDataSourceImpl {}
 
 void main() {
   late http.Client client;

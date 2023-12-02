@@ -4,8 +4,4 @@ abstract class BookRemoteDataSource {
   const BookRemoteDataSource();
 
   Future<List<BookModel>> getBooks();
-
-  Future<void> downloadBook({required String id});
-
-  Future<void> favoriteBook({required String id});
 }

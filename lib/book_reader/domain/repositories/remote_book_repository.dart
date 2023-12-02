@@ -5,8 +5,4 @@ abstract class RemoteBookRepository {
   const RemoteBookRepository();
 
   ResultFuture<List<Book>> getBooks();
-
-  ResultFuture<void> favoriteBook({required int id});
-
-  ResultFuture<void> downloadBook({required int id});
 }
