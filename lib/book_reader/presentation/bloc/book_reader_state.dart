@@ -13,6 +13,10 @@ final class BooksLoading extends BookReaderState {
   const BooksLoading();
 }
 
+final class LocalBooksLoading extends BookReaderState {
+  const LocalBooksLoading();
+}
+
 final class FavoriteBooksLoaded extends BookReaderState {
   const FavoriteBooksLoaded(this.book);
   final List<Book> book;

@@ -1,5 +1,3 @@
-import 'package:bloc/bloc.dart';
-import 'package:dartz/dartz.dart';
 import 'package:ebook_reader/book_reader/domain/entities/book.dart';
 import 'package:ebook_reader/book_reader/domain/usecases/download_book.dart';
 import 'package:ebook_reader/book_reader/domain/usecases/favorite_book.dart';
@@ -7,8 +5,8 @@ import 'package:ebook_reader/book_reader/domain/usecases/get_books.dart';
 import 'package:ebook_reader/book_reader/domain/usecases/get_favorite_books.dart';
 import 'package:ebook_reader/book_reader/domain/usecases/get_local_books.dart';
 import 'package:ebook_reader/book_reader/domain/usecases/remove_book.dart';
-import 'package:ebook_reader/core/error/failure.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'book_reader_event.dart';
 part 'book_reader_state.dart';
@@ -57,6 +55,7 @@ class BookReaderBloc extends Bloc<BookReaderEvent, BookReaderState> {
     GetRemoteBooksEvent event,
     Emitter<BookReaderState> emit,
   ) async {
+    emit(const BooksLoading());
     final result = await _getBooks();
 
     result.fold((failure) => emit(GetBooksError(failure.errorMessage)),
@@ -67,6 +66,7 @@ class BookReaderBloc extends Bloc<BookReaderEvent, BookReaderState> {
     GetLocalBooksEvent event,
     Emitter<BookReaderState> emit,
   ) async {
+    emit(const LocalBooksLoading());
     final result = await _getLocalBooks();
 
     result.fold((failure) => emit(GetBooksError(failure.errorMessage)),
@@ -87,6 +87,7 @@ class BookReaderBloc extends Bloc<BookReaderEvent, BookReaderState> {
     DownlaodBookEvent event,
     Emitter<BookReaderState> emit,
   ) async {
+    emit(const Downloading());
     final result = await _download(Book(
         id: event.id,
         title: event.title,

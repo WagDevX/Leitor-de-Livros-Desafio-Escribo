@@ -11,7 +11,10 @@ import 'package:path_provider/path_provider.dart';
 import 'package:dio/dio.dart';
 
 class BookLocalDataSourceImpl implements BookLocalDataSource {
-  BookLocalDataSourceImpl(this._favoriteBooksBox, this._booksBox);
+  BookLocalDataSourceImpl(
+      {required Box<bool> favoriteBooksBox, required Box<BookModel> booksBox})
+      : _favoriteBooksBox = favoriteBooksBox,
+        _booksBox = booksBox;
 
   final Box<bool> _favoriteBooksBox;
   final Box<BookModel> _booksBox;
