@@ -23,9 +23,10 @@ class BookLocalDataSourceImpl implements BookLocalDataSource {
   Future<void> favoriteBook({required int id}) async {
     try {
       if (_favoriteBooksBox.containsKey(id)) {
-        _favoriteBooksBox.delete(id);
+        await _favoriteBooksBox.delete(id);
+      } else if (!_booksBox.keys.toList().contains(id)) {
+        await _favoriteBooksBox.put(id, true);
       }
-      _favoriteBooksBox.put(id, true);
     } on CacheExpection {
       rethrow;
     } catch (e) {
