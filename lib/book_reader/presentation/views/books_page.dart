@@ -42,6 +42,9 @@ class _BooksPageState extends State<BooksPage> {
           }
           if (state is RemoteBooksLoaded) {
             final books = state.book;
+            final favoriteBooks = state.book
+                .where((book) => favorites.contains(book.id))
+                .toList();
             return DefaultTabController(
               length: 2,
               child: Scaffold(
@@ -149,9 +152,9 @@ class _BooksPageState extends State<BooksPage> {
                           gridDelegate:
                               const SliverGridDelegateWithFixedCrossAxisCount(
                                   mainAxisExtent: 220, crossAxisCount: 2),
-                          itemCount: books.length,
+                          itemCount: favoriteBooks.length,
                           itemBuilder: (context, index) {
-                            final book = books[index];
+                            final book = favoriteBooks[index];
                             return Column(
                               key: Key(index.toString()),
                               mainAxisSize: MainAxisSize.min,
