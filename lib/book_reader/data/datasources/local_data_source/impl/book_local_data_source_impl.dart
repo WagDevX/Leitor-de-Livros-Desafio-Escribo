@@ -2,11 +2,12 @@ import 'dart:io';
 
 import 'package:ebook_reader/book_reader/data/datasources/local_data_source/book_local_data_source.dart';
 import 'package:ebook_reader/book_reader/data/models/book_model.dart';
-import 'package:ebook_reader/book_reader/domain/entities/book.dart';
 import 'package:ebook_reader/core/error/exceptions.dart';
 import 'package:ebook_reader/core/utils/constants.dart';
 import 'package:ebook_reader/core/utils/typedef.dart';
 import 'package:hive/hive.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:dio/dio.dart';
 
 class BookLocalDataSourceImpl implements BookLocalDataSource {
   BookLocalDataSourceImpl(this._favoriteBooksBox, this._booksBox);
@@ -79,11 +80,17 @@ class BookLocalDataSourceImpl implements BookLocalDataSource {
   }
 
   @override
-  Future<void> cacheBook({required Book book}) async {
+  Future<void> downloadBook({required BookModel book}) async {
     try {
       if (!_booksBox.isOpen) {
         throw const CacheExpection(message: 'Erro ao salvar Livro');
       }
+      final filePath = await _cacheBookFiles(
+          bookUrl: book.downloadUrl,
+          coverUrl: book.coverUrl,
+          title: book.title);
+      book.copyWith(
+          downloadUrl: filePath["bookPath"], coverUrl: filePath["coverPath"]);
       _booksBox.add(book);
     } on CacheExpection {
       rethrow;
@@ -93,4 +100,30 @@ class BookLocalDataSourceImpl implements BookLocalDataSource {
   }
 }
 
-Future<void> _cacheBookFile(String path, File file) async {}
+Future<DataMap> _cacheBookFiles(
+    {required String bookUrl,
+    required String coverUrl,
+    required String title}) async {
+  Dio dio = Dio();
+  Directory? appDocDir = Platform.isAndroid
+      ? await getExternalStorageDirectory()
+      : await getApplicationDocumentsDirectory();
+  String bookPath = "${appDocDir!.path}/$title.epub";
+  String coverPath = "${appDocDir.path}/$title.jpg";
+  File file = File(bookPath);
+
+  if (!File(bookPath).existsSync()) {
+    await file.create();
+    await dio.download(bookUrl, bookPath, deleteOnError: true);
+  }
+
+  if (!File(coverPath).existsSync()) {
+    await file.create();
+    await dio.download(bookUrl, coverPath, deleteOnError: true);
+  }
+
+  return {
+    "bookPath": bookPath,
+    "coverPath": coverPath,
+  };
+}
