@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:ebook_reader/book_reader/data/datasources/local_data_source/book_local_data_source.dart';
 import 'package:ebook_reader/book_reader/data/models/book_model.dart';
+import 'package:ebook_reader/book_reader/domain/entities/book.dart';
 import 'package:ebook_reader/core/error/exceptions.dart';
 import 'package:ebook_reader/core/utils/constants.dart';
 import 'package:ebook_reader/core/utils/typedef.dart';
@@ -80,7 +81,13 @@ class BookLocalDataSourceImpl implements BookLocalDataSource {
   }
 
   @override
-  Future<void> downloadBook({required BookModel book}) async {
+  Future<void> downloadBook({required Book book}) async {
+    final BookModel bookModel = BookModel(
+        id: book.id,
+        title: book.title,
+        author: book.author,
+        coverUrl: book.coverUrl,
+        downloadUrl: book.downloadUrl);
     try {
       if (!_booksBox.isOpen) {
         throw const CacheExpection(message: 'Erro ao salvar Livro');
@@ -89,9 +96,10 @@ class BookLocalDataSourceImpl implements BookLocalDataSource {
           bookUrl: book.downloadUrl,
           coverUrl: book.coverUrl,
           title: book.title);
-      book.copyWith(
+
+      bookModel.copyWith(
           downloadUrl: filePath["bookPath"], coverUrl: filePath["coverPath"]);
-      _booksBox.add(book);
+      _booksBox.add(bookModel);
     } on CacheExpection {
       rethrow;
     } catch (e) {
