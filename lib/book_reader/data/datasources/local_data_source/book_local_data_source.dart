@@ -7,7 +7,7 @@ abstract class BookLocalDataSource {
 
   Future<void> downloadBook({required BookModel book});
 
-  Future<void> removeBook({required int key});
+  Future<void> removeBook({required String key});
 
   Future<void> favoriteBook({required int id});
 

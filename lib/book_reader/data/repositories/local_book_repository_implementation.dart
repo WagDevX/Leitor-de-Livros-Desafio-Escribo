@@ -59,9 +59,9 @@ class LocalBookRepositoryImpl implements LocalBookRepository {
   }
 
   @override
-  ResultFuture<void> removeBook({required int id}) async {
+  ResultFuture<void> removeBook({required String key}) async {
     try {
-      await _localDataSource.removeBook(key: id);
+      await _localDataSource.removeBook(key: key);
       return const Right(null);
     } on CacheExpection catch (e) {
       return Left(CacheFailure(message: e.message, statusCode: e.statusCode));

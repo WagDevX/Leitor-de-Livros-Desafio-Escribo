@@ -47,7 +47,7 @@ class BookLocalDataSourceImpl implements BookLocalDataSource {
   }
 
   @override
-  Future<void> removeBook({required int key}) async {
+  Future<void> removeBook({required String key}) async {
     try {
       if (!_booksBox.containsKey(key)) {
         throw const CacheExpection(
