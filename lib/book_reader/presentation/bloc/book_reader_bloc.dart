@@ -79,8 +79,8 @@ class BookReaderBloc extends Bloc<BookReaderEvent, BookReaderState> {
   ) async {
     final result = await _favoriteBook(event.id);
 
-    result.fold(
-        (failure) => emit(FavorieBookError(failure.errorMessage)), (_) => null);
+    result.fold((failure) => emit(FavorieBookError(failure.errorMessage)),
+        (_) => emit(const BookFavorited()));
   }
 
   Future<void> _downlaodBookHandler(

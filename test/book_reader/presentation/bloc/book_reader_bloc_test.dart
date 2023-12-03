@@ -8,6 +8,8 @@ import 'package:ebook_reader/book_reader/domain/usecases/get_favorite_books.dart
 import 'package:ebook_reader/book_reader/domain/usecases/get_local_books.dart';
 import 'package:ebook_reader/book_reader/domain/usecases/remove_book.dart';
 import 'package:ebook_reader/book_reader/presentation/bloc/book_reader_bloc.dart';
+import 'package:ebook_reader/core/error/exceptions.dart';
+import 'package:ebook_reader/core/error/failure.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -32,6 +34,11 @@ void main() {
   late FavoriteBook favoriteBook;
   late BookReaderBloc bookBloc;
 
+  final tServerFailure = ApiFailure(
+    message: 'Book error',
+    statusCode: 505,
+  );
+
   setUp(() {
     getLocalBooks = MockGetLocalBooks();
     getBooks = MockGetBooks();
@@ -50,20 +57,31 @@ void main() {
 
   tearDown(() => bookBloc.close());
 
-  test('initialState should be [AuthInitial]', () {
+  test('initialState should be [BookReaderInitial]', () {
     expect(bookBloc.state, BookReaderInitial());
   });
 
-  group('SignInEvent', () {
+  group('GetRemoteBooksEvent', () {
     const list = [Book.empty()];
     blocTest<BookReaderBloc, BookReaderState>(
-        'should emit  [AuthLoading, SignedIn] '
-        'when [SignInEvent] is addead',
+        'should emit  [BooksLoading, RemoteBooksLoaded] '
+        'when [GetRemoteBooksEvent] is addead',
         build: () {
           when(() => getBooks()).thenAnswer((_) async => const Right(list));
           return bookBloc;
         },
         act: (bloc) => bloc.add(const GetRemoteBooksEvent()),
         expect: () => const [BooksLoading(), RemoteBooksLoaded(list)]);
+
+    blocTest<BookReaderBloc, BookReaderState>(
+        'should emit [GetBooksError] '
+        'when [GetRemoteBooksEvent] is addead',
+        build: () {
+          when(() => getBooks()).thenAnswer((_) async => Left(tServerFailure));
+          return bookBloc;
+        },
+        act: (bloc) => bloc.add(const GetRemoteBooksEvent()),
+        expect: () =>
+            [const BooksLoading(), GetBooksError(tServerFailure.errorMessage)]);
   });
 }

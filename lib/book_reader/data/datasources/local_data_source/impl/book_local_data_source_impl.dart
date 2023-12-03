@@ -69,8 +69,11 @@ class BookLocalDataSourceImpl implements BookLocalDataSource {
   Future<List<BookModel>> getFavoriteBooks() async {
     final favorites = _favoriteBooksBox.keys;
     try {
-      if (_booksBox.values.isEmpty) {
-        throw const CacheExpection(message: 'Nenhum livro encontrado');
+      if (favorites.isEmpty) {
+        throw const CacheExpection(message: 'Nenhum livro favoritado!');
+      }
+      if (_booksBox.isEmpty) {
+        throw const CacheExpection(message: 'Nenhum livro favoritado!');
       }
       return List<DataMap>.from(_booksBox.values as List)
           .map((bookData) => BookModel.fromMap(bookData))
