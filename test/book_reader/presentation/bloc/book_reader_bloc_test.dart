@@ -89,7 +89,9 @@ void main() {
           return bookBloc;
         },
         act: (bloc) => bloc.add(const GetRemoteBooksEvent()),
-        expect: () =>
-            [const BooksLoading(), GetBooksError(tServerFailure.errorMessage)]);
+        expect: () => [
+              const BooksLoading(),
+              GetRemoteBooksError(tServerFailure.errorMessage)
+            ]);
   });
 }
