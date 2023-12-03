@@ -37,6 +37,9 @@ class _BooksGridViewState extends State<BooksGridView> {
       if (state is Downloading) {
         CoreUtils.showSnackBar(context, "Baixando!", true);
       }
+      if (state is OpeningBook) {
+        CoreUtils.showSnackBar(context, "Abrindo livro!", false);
+      }
       if (state is Downloaded) {
         CoreUtils.showSnackBar(context, "Livro baixado!", false);
         VocsyEpub.setConfig(
@@ -49,15 +52,27 @@ class _BooksGridViewState extends State<BooksGridView> {
         );
         VocsyEpub.open(state.downloadedBook.downloadUrl);
       }
+      if (state is BookOpenedFromDisk) {
+        CoreUtils.showSnackBar(context, "Abrindo livro!", false);
+        VocsyEpub.setConfig(
+          themeColor: Theme.of(context).primaryColor,
+          identifier: "iosBook",
+          scrollDirection: EpubScrollDirection.ALLDIRECTIONS,
+          allowSharing: true,
+          enableTts: true,
+          nightMode: true,
+        );
+        VocsyEpub.open(state.openedBook.downloadUrl);
+      }
       if (state is RemoteBooksLoaded) {
         booksList = state.book;
       }
       if (state is LocalBooksLoaded) {
         booksList = state.book;
       }
-      if (state is GetBooksError) {
-        if (booksList.isNotEmpty) {
-          CoreUtils.showSnackBar(context, state.message, false);
+      if (state is GetRemoteBooksError) {
+        if (booksList.isEmpty) {
+          return CoreUtils.showSnackBar(context, state.message, false);
         }
       }
       if (state is FavorieBookError) {
@@ -102,7 +117,7 @@ class _BooksGridViewState extends State<BooksGridView> {
                         border: Border.all(width: 1),
                         image: DecorationImage(
                             fit: BoxFit.fill,
-                            image: NetworkImage(book.coverUrl)),
+                            image: CoreUtils.getImageProviderr(book.coverUrl)),
                       ),
                       child: Stack(children: [
                         Positioned(

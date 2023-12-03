@@ -45,12 +45,24 @@ final class Downloading extends BookReaderState {
   const Downloading();
 }
 
+final class OpeningBook extends BookReaderState {
+  const OpeningBook();
+}
+
 final class Downloaded extends BookReaderState {
   const Downloaded(this.downloadedBook);
   final Book downloadedBook;
 
   @override
   List<Object> get props => [downloadedBook];
+}
+
+final class BookOpenedFromDisk extends BookReaderState {
+  const BookOpenedFromDisk(this.openedBook);
+  final Book openedBook;
+
+  @override
+  List<Object> get props => [openedBook];
 }
 
 final class BookFavorited extends BookReaderState {
@@ -61,8 +73,16 @@ final class BookDeleted extends BookReaderState {
   const BookDeleted();
 }
 
-final class GetBooksError extends BookReaderState {
-  const GetBooksError(this.message);
+final class GetRemoteBooksError extends BookReaderState {
+  const GetRemoteBooksError(this.message);
+  final String message;
+
+  @override
+  List<String> get props => [message];
+}
+
+final class GetLocalBooksError extends BookReaderState {
+  const GetLocalBooksError(this.message);
   final String message;
 
   @override

@@ -134,6 +134,7 @@ Future<DataMap> _cacheBookFiles(
   String bookPath = "${appDocDir!.path}/${title.split("").join()}.epub";
   String coverPath = "${appDocDir.path}/${title.split("").join()}.jpg";
   File file = File(bookPath);
+  File fileImage = File(coverPath);
 
   if (!File(bookPath).existsSync()) {
     await file.create();
@@ -141,8 +142,8 @@ Future<DataMap> _cacheBookFiles(
   }
 
   if (!File(coverPath).existsSync()) {
-    await file.create();
-    await dio.download(bookUrl, coverPath, deleteOnError: true);
+    await fileImage.create();
+    await dio.download(coverUrl, coverPath, deleteOnError: true);
   }
 
   return {

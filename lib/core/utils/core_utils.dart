@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 class CoreUtils {
@@ -16,31 +18,35 @@ class CoreUtils {
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           margin: const EdgeInsets.all(10),
-          content: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                message,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-              loader
-                  ? const SizedBox(
-                      width: 5,
-                    )
-                  : const SizedBox(
-                      width: 0,
+          content: loader
+              ? Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      message,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
-              loader
-                  ? const Center(child: CircularProgressIndicator.adaptive())
-                  : Container()
-            ],
-          ),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    const Center(child: CircularProgressIndicator.adaptive())
+                  ],
+                )
+              : Text(message),
         ),
       );
+  }
+
+  static ImageProvider getImageProviderr(String url) {
+    if (url.contains("http://") || url.contains("https://")) {
+      return NetworkImage(url);
+    } else {
+      return FileImage(File(url));
+    }
   }
 }

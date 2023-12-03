@@ -8,12 +8,14 @@ Future<void> init() async {
   final Box<HiveBookModel> booksBox = await Hive.openBox(booksHiveBoxName);
   sl
     ..registerFactory(() => BookReaderBloc(
-        download: sl(),
-        favoriteBook: sl(),
-        getBooks: sl(),
-        getFavoriteBooks: sl(),
-        getLocalBooks: sl(),
-        removeBook: sl()))
+          download: sl(),
+          favoriteBook: sl(),
+          getBooks: sl(),
+          getFavoriteBooks: sl(),
+          getLocalBooks: sl(),
+          removeBook: sl(),
+          booksBox: sl(),
+        ))
     ..registerLazySingleton(() => DownloadBook(sl()))
     ..registerLazySingleton(() => FavoriteBook(sl()))
     ..registerLazySingleton(() => GetBooks(sl()))

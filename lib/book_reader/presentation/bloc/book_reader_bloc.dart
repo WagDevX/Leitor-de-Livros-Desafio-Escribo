@@ -8,24 +8,27 @@ import 'package:ebook_reader/book_reader/domain/usecases/get_local_books.dart';
 import 'package:ebook_reader/book_reader/domain/usecases/remove_book.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 part 'book_reader_event.dart';
 part 'book_reader_state.dart';
 
 class BookReaderBloc extends Bloc<BookReaderEvent, BookReaderState> {
-  BookReaderBloc({
-    required DownloadBook download,
-    required FavoriteBook favoriteBook,
-    required GetBooks getBooks,
-    required GetFavoriteBooks getFavoriteBooks,
-    required GetLocalBooks getLocalBooks,
-    required RemoveBook removeBook,
-  })  : _download = download,
+  BookReaderBloc(
+      {required DownloadBook download,
+      required FavoriteBook favoriteBook,
+      required GetBooks getBooks,
+      required GetFavoriteBooks getFavoriteBooks,
+      required GetLocalBooks getLocalBooks,
+      required RemoveBook removeBook,
+      required Box<HiveBookModel> booksBox})
+      : _download = download,
         _favoriteBook = favoriteBook,
         _getBooks = getBooks,
         _getFavoriteBooks = getFavoriteBooks,
         _getLocalBooks = getLocalBooks,
         _removeBook = removeBook,
+        _booksBox = booksBox,
         super(BookReaderInitial()) {
     on<GetRemoteBooksEvent>(_getRemoteBooksHandler);
     on<GetLocalBooksEvent>(_getLocalBooksHandler);
@@ -41,6 +44,7 @@ class BookReaderBloc extends Bloc<BookReaderEvent, BookReaderState> {
   final GetFavoriteBooks _getFavoriteBooks;
   final GetLocalBooks _getLocalBooks;
   final RemoveBook _removeBook;
+  final Box<HiveBookModel> _booksBox;
 
   Future<void> _getFavoriteBooksHandler(
     GetFavoriteBooksEvent event,
@@ -48,7 +52,7 @@ class BookReaderBloc extends Bloc<BookReaderEvent, BookReaderState> {
   ) async {
     final result = await _getFavoriteBooks();
 
-    result.fold((failure) => emit(GetBooksError(failure.errorMessage)),
+    result.fold((failure) => emit(GetLocalBooksError(failure.errorMessage)),
         (book) => emit(FavoriteBooksLoaded(book)));
   }
 
@@ -59,7 +63,7 @@ class BookReaderBloc extends Bloc<BookReaderEvent, BookReaderState> {
     emit(const BooksLoading());
     final result = await _getBooks();
 
-    result.fold((failure) => emit(GetBooksError(failure.errorMessage)),
+    result.fold((failure) => emit(GetRemoteBooksError(failure.errorMessage)),
         (books) => emit(RemoteBooksLoaded(books)));
   }
 
@@ -70,7 +74,7 @@ class BookReaderBloc extends Bloc<BookReaderEvent, BookReaderState> {
     emit(const LocalBooksLoading());
     final result = await _getLocalBooks();
 
-    result.fold((failure) => emit(GetBooksError(failure.errorMessage)),
+    result.fold((failure) => emit(GetLocalBooksError(failure.errorMessage)),
         (books) => emit(LocalBooksLoaded(books)));
   }
 
@@ -88,7 +92,12 @@ class BookReaderBloc extends Bloc<BookReaderEvent, BookReaderState> {
     DownlaodBookEvent event,
     Emitter<BookReaderState> emit,
   ) async {
-    emit(const Downloading());
+    bool booksIsDownloaded = _booksBox.get(event.id) == null;
+    if (!booksIsDownloaded) {
+      emit(const OpeningBook());
+    } else {
+      emit(const Downloading());
+    }
     final result = await _download(Book(
         id: event.id,
         title: event.title,
@@ -98,7 +107,13 @@ class BookReaderBloc extends Bloc<BookReaderEvent, BookReaderState> {
         favorite: event.favorite));
 
     result.fold((failure) => emit(DownloadBooksError(failure.errorMessage)),
-        (book) => emit(Downloaded(book)));
+        (book) {
+      if (!booksIsDownloaded) {
+        return emit(BookOpenedFromDisk(book));
+      } else {
+        return emit(Downloaded(book));
+      }
+    });
   }
 
   Future<void> _removeBookHandler(

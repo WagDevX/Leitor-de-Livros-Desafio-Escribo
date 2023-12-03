@@ -1,4 +1,3 @@
-import 'package:ebook_reader/book_reader/domain/entities/book.dart';
 import 'package:ebook_reader/book_reader/presentation/bloc/book_reader_bloc.dart';
 import 'package:ebook_reader/core/services/injection_container.dart';
 import 'package:ebook_reader/core/utils/core_utils.dart';
@@ -17,10 +16,11 @@ class FavoriteBooksGridView extends StatefulWidget {
 class _FavoriteBooksGridViewState extends State<FavoriteBooksGridView> {
   late Box<bool> favorites;
 
-  List<Book> booksList = [];
+  List<dynamic> booksList = [];
 
   void getBooks() async {
     context.read<BookReaderBloc>().add(const GetRemoteBooksEvent());
+    context.read<BookReaderBloc>().add(const GetLocalBooksEvent());
     final box = sl<Box<bool>>();
     favorites = box;
   }
@@ -37,6 +37,9 @@ class _FavoriteBooksGridViewState extends State<FavoriteBooksGridView> {
       if (state is Downloading) {
         CoreUtils.showSnackBar(context, "Baixando!", true);
       }
+      if (state is OpeningBook) {
+        CoreUtils.showSnackBar(context, "Abrindo livro!", false);
+      }
       if (state is Downloaded) {
         CoreUtils.showSnackBar(context, "Livro baixado!", false);
         VocsyEpub.setConfig(
@@ -49,15 +52,46 @@ class _FavoriteBooksGridViewState extends State<FavoriteBooksGridView> {
         );
         VocsyEpub.open(state.downloadedBook.downloadUrl);
       }
+      if (state is BookOpenedFromDisk) {
+        CoreUtils.showSnackBar(context, "Abrindo livro!", false);
+        VocsyEpub.setConfig(
+          themeColor: Theme.of(context).primaryColor,
+          identifier: "iosBook",
+          scrollDirection: EpubScrollDirection.ALLDIRECTIONS,
+          allowSharing: true,
+          enableTts: true,
+          nightMode: true,
+        );
+        VocsyEpub.open(state.openedBook.downloadUrl);
+      }
+      if (state is LocalBooksLoaded) {
+        booksList = state.book
+            .where((element) => favorites.get(element.id) != null)
+            .toList();
+      }
       if (state is RemoteBooksLoaded) {
         booksList = state.book
             .where((element) => favorites.get(element.id) != null)
             .toList();
       }
+
       if (state is BookFavorited) {
         booksList = booksList
             .where((element) => favorites.get(element.id) != null)
             .toList();
+      }
+      if (state is GetLocalBooksError) {
+        if (booksList.isEmpty) {
+          CoreUtils.showSnackBar(context, state.message, false);
+        }
+      }
+      if (state is GetRemoteBooksError) {
+        if (booksList.isEmpty) {
+          CoreUtils.showSnackBar(context, state.message, false);
+        }
+      }
+      if (state is FavorieBookError) {
+        CoreUtils.showSnackBar(context, state.message, false);
       }
     }, builder: (_, state) {
       if (state is BooksLoading) {
@@ -68,7 +102,7 @@ class _FavoriteBooksGridViewState extends State<FavoriteBooksGridView> {
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               mainAxisExtent: 220, crossAxisCount: 2),
           itemCount: booksList.length,
-          itemBuilder: (context, index) {
+          itemBuilder: (_, index) {
             final book = booksList[index];
             return Column(
               key: Key(index.toString()),
@@ -93,12 +127,13 @@ class _FavoriteBooksGridViewState extends State<FavoriteBooksGridView> {
                       width: 160,
                       alignment: Alignment.topRight,
                       decoration: BoxDecoration(
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(5)),
-                          border: Border.all(width: 1),
-                          image: DecorationImage(
-                              fit: BoxFit.fill,
-                              image: NetworkImage(book.coverUrl))),
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(5)),
+                        border: Border.all(width: 1),
+                        image: DecorationImage(
+                            fit: BoxFit.fill,
+                            image: CoreUtils.getImageProviderr(book.coverUrl)),
+                      ),
                       child: Stack(children: [
                         Positioned(
                           top: -15,
