@@ -9,7 +9,6 @@ import 'package:ebook_reader/core/utils/typedef.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:dio/dio.dart';
-import 'package:vocsy_epub_viewer/epub_viewer.dart';
 
 class BookLocalDataSourceImpl implements BookLocalDataSource {
   BookLocalDataSourceImpl(
