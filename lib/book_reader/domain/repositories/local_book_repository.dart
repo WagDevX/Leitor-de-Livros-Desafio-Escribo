@@ -1,10 +1,11 @@
+import 'package:ebook_reader/book_reader/data/models/hive_book_model.dart';
 import 'package:ebook_reader/book_reader/domain/entities/book.dart';
 import 'package:ebook_reader/core/utils/typedef.dart';
 
 abstract class LocalBookRepository {
   const LocalBookRepository();
 
-  ResultFuture<List<Book>> getBooks();
+  ResultFuture<List<HiveBookModel>> getBooks();
 
   ResultFuture<List<Book>> getFavoriteBooks();
 
@@ -12,5 +13,5 @@ abstract class LocalBookRepository {
 
   ResultFuture<void> removeBook({required String key});
 
-  ResultFuture<void> downloadBook({required Book book});
+  ResultFuture<Book> downloadBook({required Book book});
 }

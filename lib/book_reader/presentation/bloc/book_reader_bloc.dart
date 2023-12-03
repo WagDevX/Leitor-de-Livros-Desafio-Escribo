@@ -1,3 +1,4 @@
+import 'package:ebook_reader/book_reader/data/models/hive_book_model.dart';
 import 'package:ebook_reader/book_reader/domain/entities/book.dart';
 import 'package:ebook_reader/book_reader/domain/usecases/download_book.dart';
 import 'package:ebook_reader/book_reader/domain/usecases/favorite_book.dart';
@@ -97,7 +98,7 @@ class BookReaderBloc extends Bloc<BookReaderEvent, BookReaderState> {
         favorite: event.favorite));
 
     result.fold((failure) => emit(DownloadBooksError(failure.errorMessage)),
-        (_) => emit(const Downloaded()));
+        (book) => emit(Downloaded(book)));
   }
 
   Future<void> _removeBookHandler(

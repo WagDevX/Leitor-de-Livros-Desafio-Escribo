@@ -2,29 +2,31 @@ import 'dart:io';
 
 import 'package:ebook_reader/book_reader/data/datasources/local_data_source/book_local_data_source.dart';
 import 'package:ebook_reader/book_reader/data/models/book_model.dart';
+import 'package:ebook_reader/book_reader/data/models/hive_book_model.dart';
 import 'package:ebook_reader/book_reader/domain/entities/book.dart';
 import 'package:ebook_reader/core/error/exceptions.dart';
-import 'package:ebook_reader/core/utils/constants.dart';
 import 'package:ebook_reader/core/utils/typedef.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:dio/dio.dart';
+import 'package:vocsy_epub_viewer/epub_viewer.dart';
 
 class BookLocalDataSourceImpl implements BookLocalDataSource {
   BookLocalDataSourceImpl(
-      {required Box<bool> favoriteBooksBox, required Box<BookModel> booksBox})
+      {required Box<bool> favoriteBooksBox,
+      required Box<HiveBookModel> booksBox})
       : _favoriteBooksBox = favoriteBooksBox,
         _booksBox = booksBox;
 
   final Box<bool> _favoriteBooksBox;
-  final Box<BookModel> _booksBox;
+  final Box<HiveBookModel> _booksBox;
 
   @override
   Future<void> favoriteBook({required int id}) async {
     try {
-      if (_favoriteBooksBox.containsKey(id)) {
+      if (_favoriteBooksBox.get(id) != null) {
         await _favoriteBooksBox.delete(id);
-      } else if (!_booksBox.keys.toList().contains(id)) {
+      } else if (_favoriteBooksBox.get(id) == null) {
         await _favoriteBooksBox.put(id, true);
       }
     } on CacheExpection {
@@ -35,14 +37,12 @@ class BookLocalDataSourceImpl implements BookLocalDataSource {
   }
 
   @override
-  Future<List<BookModel>> getBooks() async {
+  Future<List<HiveBookModel>> getBooks() async {
     try {
-      if (!_booksBox.containsKey(booksHiveBoxName)) {
+      if (_booksBox.values.isEmpty) {
         throw const CacheExpection(message: 'Nenhum livro encontrado');
       }
-      return List<DataMap>.from(_booksBox.values as List)
-          .map((bookData) => BookModel.fromMap(bookData))
-          .toList();
+      return _booksBox.values.cast<HiveBookModel>().toList();
     } on CacheExpection {
       rethrow;
     } catch (e) {
@@ -88,7 +88,7 @@ class BookLocalDataSourceImpl implements BookLocalDataSource {
   }
 
   @override
-  Future<void> downloadBook({required Book book}) async {
+  Future<Book> downloadBook({required Book book}) async {
     final BookModel bookModel = BookModel(
         id: book.id,
         title: book.title,
@@ -104,9 +104,18 @@ class BookLocalDataSourceImpl implements BookLocalDataSource {
           coverUrl: book.coverUrl,
           title: book.title);
 
-      bookModel.copyWith(
+      final newBookModel = bookModel.copyWith(
           downloadUrl: filePath["bookPath"], coverUrl: filePath["coverPath"]);
-      _booksBox.add(bookModel);
+      final HiveBookModel hiveBookModel = HiveBookModel.criar();
+      hiveBookModel.id = book.id;
+      hiveBookModel.author = newBookModel.author;
+      hiveBookModel.coverUrl = newBookModel.coverUrl;
+      hiveBookModel.downloadUrl = newBookModel.downloadUrl;
+      hiveBookModel.title = newBookModel.title;
+      hiveBookModel.favorite = newBookModel.favorite;
+      _booksBox.put(book.id, hiveBookModel);
+
+      return newBookModel;
     } on CacheExpection {
       rethrow;
     } catch (e) {
@@ -123,8 +132,8 @@ Future<DataMap> _cacheBookFiles(
   Directory? appDocDir = Platform.isAndroid
       ? await getExternalStorageDirectory()
       : await getApplicationDocumentsDirectory();
-  String bookPath = "${appDocDir!.path}/$title.epub";
-  String coverPath = "${appDocDir.path}/$title.jpg";
+  String bookPath = "${appDocDir!.path}/${title.split("").join()}.epub";
+  String coverPath = "${appDocDir.path}/${title.split("").join()}.jpg";
   File file = File(bookPath);
 
   if (!File(bookPath).existsSync()) {

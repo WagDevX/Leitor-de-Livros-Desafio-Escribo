@@ -8,7 +8,6 @@ import 'package:ebook_reader/book_reader/domain/usecases/get_favorite_books.dart
 import 'package:ebook_reader/book_reader/domain/usecases/get_local_books.dart';
 import 'package:ebook_reader/book_reader/domain/usecases/remove_book.dart';
 import 'package:ebook_reader/book_reader/presentation/bloc/book_reader_bloc.dart';
-import 'package:ebook_reader/core/error/exceptions.dart';
 import 'package:ebook_reader/core/error/failure.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -34,7 +33,7 @@ void main() {
   late FavoriteBook favoriteBook;
   late BookReaderBloc bookBloc;
 
-  final tServerFailure = ApiFailure(
+  const tServerFailure = ApiFailure(
     message: 'Book error',
     statusCode: 505,
   );
@@ -77,7 +76,7 @@ void main() {
         'should emit [GetBooksError] '
         'when [GetRemoteBooksEvent] is addead',
         build: () {
-          when(() => getBooks()).thenAnswer((_) async => Left(tServerFailure));
+          when(() => getBooks()).thenAnswer((_) async => const Left(tServerFailure));
           return bookBloc;
         },
         act: (bloc) => bloc.add(const GetRemoteBooksEvent()),

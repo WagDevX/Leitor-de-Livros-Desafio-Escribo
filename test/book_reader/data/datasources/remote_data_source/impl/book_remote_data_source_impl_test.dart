@@ -46,7 +46,8 @@ void main() {
           () => methodCall(),
           throwsA(
               const ApiException(message: 'Unknown Error', statusCode: 500)));
-      verify(() => client.get(Uri.https(apiBooksBaseUrl, apiBooksEndpoint)));
+      verify(() => client.get(Uri.https(apiBooksBaseUrl, apiBooksEndpoint)))
+          .called(1);
       verifyNoMoreInteractions(client);
     });
   });

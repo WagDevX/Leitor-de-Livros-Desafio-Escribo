@@ -1,5 +1,5 @@
 import 'package:dartz/dartz.dart';
-import 'package:ebook_reader/book_reader/domain/entities/book.dart';
+import 'package:ebook_reader/book_reader/data/models/hive_book_model.dart';
 import 'package:ebook_reader/book_reader/domain/repositories/local_book_repository.dart';
 import 'package:ebook_reader/book_reader/domain/usecases/get_local_books.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -16,7 +16,7 @@ void main() {
     usecase = GetLocalBooks(repository);
   });
 
-  final testResponse = [const Book.empty()];
+  final testResponse = [HiveBookModel.criar()];
 
   test('should call [LocalBookRepository] and return a list of [Book]',
       () async {
@@ -25,7 +25,7 @@ void main() {
 
     final response = await usecase();
 
-    expect(response, equals(Right<dynamic, List<Book>>(testResponse)));
+    expect(response, equals(Right<dynamic, List<HiveBookModel>>(testResponse)));
     verify(() => repository.getBooks()).called(1);
     verifyNoMoreInteractions(repository);
   });

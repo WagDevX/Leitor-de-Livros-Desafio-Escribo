@@ -1,9 +1,11 @@
 import 'package:ebook_reader/book_reader/domain/entities/book.dart';
 import 'package:ebook_reader/book_reader/presentation/bloc/book_reader_bloc.dart';
 import 'package:ebook_reader/core/services/injection_container.dart';
+import 'package:ebook_reader/core/utils/core_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:vocsy_epub_viewer/epub_viewer.dart';
 
 class FavoriteBooksGridView extends StatefulWidget {
   const FavoriteBooksGridView({super.key});
@@ -32,6 +34,21 @@ class _FavoriteBooksGridViewState extends State<FavoriteBooksGridView> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<BookReaderBloc, BookReaderState>(listener: (_, state) {
+      if (state is Downloading) {
+        CoreUtils.showSnackBar(context, "Baixando!", true);
+      }
+      if (state is Downloaded) {
+        CoreUtils.showSnackBar(context, "Livro baixado!", false);
+        VocsyEpub.setConfig(
+          themeColor: Theme.of(context).primaryColor,
+          identifier: "iosBook",
+          scrollDirection: EpubScrollDirection.ALLDIRECTIONS,
+          allowSharing: true,
+          enableTts: true,
+          nightMode: true,
+        );
+        VocsyEpub.open(state.downloadedBook.downloadUrl);
+      }
       if (state is RemoteBooksLoaded) {
         booksList = state.book
             .where((element) => favorites.get(element.id) != null)
@@ -62,40 +79,51 @@ class _FavoriteBooksGridViewState extends State<FavoriteBooksGridView> {
                 ),
                 Expanded(
                   flex: 3,
-                  child: Container(
-                    width: 160,
-                    alignment: Alignment.topRight,
-                    decoration: BoxDecoration(
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(5)),
-                        border: Border.all(width: 1),
-                        image: DecorationImage(
-                            fit: BoxFit.fill,
-                            image: NetworkImage(book.coverUrl))),
-                    child: Stack(children: [
-                      Positioned(
-                        top: -15,
-                        right: -20,
-                        child: IconButton(
-                          onPressed: () {
-                            context
-                                .read<BookReaderBloc>()
-                                .add(FavoriteBookEvent(id: book.id));
-                            getBooks();
-                          },
-                          icon: favorites.get(book.id) != null
-                              ? const Icon(
-                                  Icons.bookmark,
-                                  size: 50,
-                                  color: Colors.red,
-                                )
-                              : const Icon(
-                                  Icons.bookmark_border,
-                                  size: 50,
-                                ),
+                  child: InkWell(
+                    onTap: () {
+                      context.read<BookReaderBloc>().add(DownlaodBookEvent(
+                          id: book.id,
+                          title: book.title,
+                          author: book.author,
+                          coverUrl: book.coverUrl,
+                          downloadUrl: book.downloadUrl,
+                          favorite: book.favorite));
+                    },
+                    child: Container(
+                      width: 160,
+                      alignment: Alignment.topRight,
+                      decoration: BoxDecoration(
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(5)),
+                          border: Border.all(width: 1),
+                          image: DecorationImage(
+                              fit: BoxFit.fill,
+                              image: NetworkImage(book.coverUrl))),
+                      child: Stack(children: [
+                        Positioned(
+                          top: -15,
+                          right: -20,
+                          child: IconButton(
+                            onPressed: () {
+                              context
+                                  .read<BookReaderBloc>()
+                                  .add(FavoriteBookEvent(id: book.id));
+                              getBooks();
+                            },
+                            icon: favorites.get(book.id) != null
+                                ? const Icon(
+                                    Icons.bookmark,
+                                    size: 50,
+                                    color: Colors.red,
+                                  )
+                                : const Icon(
+                                    Icons.bookmark_border,
+                                    size: 50,
+                                  ),
+                          ),
                         ),
-                      ),
-                    ]),
+                      ]),
+                    ),
                   ),
                 ),
                 const SizedBox(

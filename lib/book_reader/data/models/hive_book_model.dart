@@ -2,7 +2,7 @@ import 'package:hive/hive.dart';
 
 part 'hive_book_model.g.dart';
 
-@HiveType(typeId: 0)
+@HiveType(typeId: 1)
 class HiveBookModel extends HiveObject {
   @HiveField(0)
   int? id;
@@ -20,16 +20,16 @@ class HiveBookModel extends HiveObject {
   String? downloadUrl;
 
   @HiveField(5)
-  double? favorite;
+  bool? favorite;
 
   HiveBookModel();
 
-  HiveBookModel.empty() {
-    id = 1;
-    title = "";
-    author = "";
-    coverUrl = "";
-    downloadUrl = "";
-    favorite = null;
+  HiveBookModel.criar() {
+    id;
+    title;
+    author;
+    coverUrl;
+    downloadUrl;
+    favorite = false;
   }
 }

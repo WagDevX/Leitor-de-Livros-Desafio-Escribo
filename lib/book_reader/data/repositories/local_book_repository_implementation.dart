@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:ebook_reader/book_reader/data/datasources/local_data_source/book_local_data_source.dart';
 import 'package:ebook_reader/book_reader/data/models/book_model.dart';
+import 'package:ebook_reader/book_reader/data/models/hive_book_model.dart';
 import 'package:ebook_reader/book_reader/domain/entities/book.dart';
 import 'package:ebook_reader/book_reader/domain/repositories/local_book_repository.dart';
 import 'package:ebook_reader/core/error/exceptions.dart';
@@ -13,16 +14,16 @@ class LocalBookRepositoryImpl implements LocalBookRepository {
   final BookLocalDataSource _localDataSource;
 
   @override
-  ResultFuture<void> downloadBook({required Book book}) async {
+  ResultFuture<Book> downloadBook({required Book book}) async {
     try {
-      await _localDataSource.downloadBook(
+      final result = await _localDataSource.downloadBook(
           book: BookModel(
               id: book.id,
               title: book.title,
               author: book.author,
               coverUrl: book.coverUrl,
               downloadUrl: book.downloadUrl));
-      return const Right(null);
+      return Right(result);
     } on CacheExpection catch (e) {
       return Left(CacheFailure(message: e.message, statusCode: e.statusCode));
     }
@@ -39,7 +40,7 @@ class LocalBookRepositoryImpl implements LocalBookRepository {
   }
 
   @override
-  ResultFuture<List<Book>> getBooks() async {
+  ResultFuture<List<HiveBookModel>> getBooks() async {
     try {
       final response = await _localDataSource.getBooks();
       return Right(response);

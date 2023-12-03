@@ -27,10 +27,10 @@ final class FavoriteBooksLoaded extends BookReaderState {
 
 final class LocalBooksLoaded extends BookReaderState {
   const LocalBooksLoaded(this.book);
-  final List<Book> book;
+  final List<HiveBookModel> book;
 
   @override
-  List<Object> get props => book.map((book) => book.id).toList();
+  List<Object> get props => book.map((book) => book.id!).toList();
 }
 
 final class RemoteBooksLoaded extends BookReaderState {
@@ -46,7 +46,11 @@ final class Downloading extends BookReaderState {
 }
 
 final class Downloaded extends BookReaderState {
-  const Downloaded();
+  const Downloaded(this.downloadedBook);
+  final Book downloadedBook;
+
+  @override
+  List<Object> get props => [downloadedBook];
 }
 
 final class BookFavorited extends BookReaderState {

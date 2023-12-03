@@ -8,7 +8,7 @@ part of 'hive_book_model.dart';
 
 class HiveBookModelAdapter extends TypeAdapter<HiveBookModel> {
   @override
-  final int typeId = 0;
+  final int typeId = 1;
 
   @override
   HiveBookModel read(BinaryReader reader) {
@@ -22,7 +22,7 @@ class HiveBookModelAdapter extends TypeAdapter<HiveBookModel> {
       ..author = fields[2] as String?
       ..coverUrl = fields[3] as String?
       ..downloadUrl = fields[4] as String?
-      ..favorite = fields[5] as double?;
+      ..favorite = fields[5] as bool?;
   }
 
   @override

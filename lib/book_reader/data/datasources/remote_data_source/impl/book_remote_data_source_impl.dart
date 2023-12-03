@@ -6,7 +6,6 @@ import 'package:ebook_reader/core/error/exceptions.dart';
 import 'package:ebook_reader/core/utils/constants.dart';
 import 'package:ebook_reader/core/utils/typedef.dart';
 import 'package:http/http.dart' as http;
-import 'package:internet_connection_checker/internet_connection_checker.dart';
 
 class BookRemoteDataSourceImpl implements BookRemoteDataSource {
   const BookRemoteDataSourceImpl(this._client);
@@ -16,10 +15,6 @@ class BookRemoteDataSourceImpl implements BookRemoteDataSource {
   @override
   Future<List<BookModel>> getBooks() async {
     try {
-      bool isConnected = await InternetConnectionChecker().hasConnection;
-      if (!isConnected) {
-        throw const ApiException(message: "Sem conexão", statusCode: 500);
-      }
       final response =
           await _client.get(Uri.https(apiBooksBaseUrl, apiBooksEndpoint));
       if (response.statusCode != 200) {
@@ -28,6 +23,7 @@ class BookRemoteDataSourceImpl implements BookRemoteDataSource {
       }
       return List<DataMap>.from(jsonDecode(response.body) as List)
           .map((bookData) => BookModel.fromMap(bookData))
+          .toSet()
           .toList();
     } on ApiException {
       rethrow;

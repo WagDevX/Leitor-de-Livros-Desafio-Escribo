@@ -19,13 +19,15 @@ void main() {
     registerFallbackValue(testBook);
   });
 
-  test('should successfuly call [LocalBookRepository.downloadBook]', () async {
+  test(
+      'should successfuly call [LocalBookRepository.downloadBook] and return downloaded book',
+      () async {
     when(() => repository.downloadBook(book: any(named: 'book')))
-        .thenAnswer((_) async => const Right(null));
+        .thenAnswer((_) async => const Right(testBook));
 
     final response = await usecase(testBook);
 
-    expect(response, equals(const Right<dynamic, void>(null)));
+    expect(response, equals(const Right<dynamic, Book>(testBook)));
     verify(() => repository.downloadBook(book: testBook)).called(1);
     verifyNoMoreInteractions(repository);
   });

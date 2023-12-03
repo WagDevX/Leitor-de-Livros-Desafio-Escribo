@@ -9,6 +9,6 @@ class DownloadBook extends UseCaseWithParams<void, Book> {
   final LocalBookRepository _repository;
 
   @override
-  ResultFuture<void> call(Book params) async =>
+  ResultFuture<Book> call(Book params) async =>
       _repository.downloadBook(book: params);
 }
