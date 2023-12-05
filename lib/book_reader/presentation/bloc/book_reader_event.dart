@@ -37,12 +37,8 @@ class DownlaodBookEvent extends BookReaderEvent {
   List<Object> get props => [id, title, author, coverUrl, downloadUrl];
 }
 
-class GetRemoteBooksEvent extends BookReaderEvent {
-  const GetRemoteBooksEvent();
-}
-
-class GetLocalBooksEvent extends BookReaderEvent {
-  const GetLocalBooksEvent();
+class GetBooksEvent extends BookReaderEvent {
+  const GetBooksEvent();
 }
 
 class GetFavoriteBooksEvent extends BookReaderEvent {

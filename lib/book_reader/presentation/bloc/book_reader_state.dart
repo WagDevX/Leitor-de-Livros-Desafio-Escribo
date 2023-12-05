@@ -13,8 +13,8 @@ final class BooksLoading extends BookReaderState {
   const BooksLoading();
 }
 
-final class LocalBooksLoading extends BookReaderState {
-  const LocalBooksLoading();
+final class FavoriteBooksLoading extends BookReaderState {
+  const FavoriteBooksLoading();
 }
 
 final class FavoriteBooksLoaded extends BookReaderState {
@@ -25,16 +25,8 @@ final class FavoriteBooksLoaded extends BookReaderState {
   List<Object> get props => book.map((book) => book.id).toList();
 }
 
-final class LocalBooksLoaded extends BookReaderState {
-  const LocalBooksLoaded(this.book);
-  final List<HiveBookModel> book;
-
-  @override
-  List<Object> get props => book.map((book) => book.id!).toList();
-}
-
-final class RemoteBooksLoaded extends BookReaderState {
-  const RemoteBooksLoaded(this.book);
+final class BooksLoaded extends BookReaderState {
+  const BooksLoaded(this.book);
   final List<Book> book;
 
   @override
@@ -73,16 +65,24 @@ final class BookDeleted extends BookReaderState {
   const BookDeleted();
 }
 
-final class GetRemoteBooksError extends BookReaderState {
-  const GetRemoteBooksError(this.message);
+final class GetBooksError extends BookReaderState {
+  const GetBooksError(this.message);
   final String message;
 
   @override
   List<String> get props => [message];
 }
 
-final class GetLocalBooksError extends BookReaderState {
-  const GetLocalBooksError(this.message);
+final class GetFavoriteBooksError extends BookReaderState {
+  const GetFavoriteBooksError(this.message);
+  final String message;
+
+  @override
+  List<String> get props => [message];
+}
+
+final class FavoriteBookError extends BookReaderState {
+  const FavoriteBookError(this.message);
   final String message;
 
   @override
@@ -97,8 +97,8 @@ final class DownloadBooksError extends BookReaderState {
   List<String> get props => [message];
 }
 
-final class FavorieBookError extends BookReaderState {
-  const FavorieBookError(this.message);
+final class RemoveBookError extends BookReaderState {
+  const RemoveBookError(this.message);
   final String message;
 
   @override

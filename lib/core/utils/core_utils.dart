@@ -42,7 +42,7 @@ class CoreUtils {
       );
   }
 
-  static ImageProvider getImageProviderr(String url) {
+  static Future<ImageProvider> getImageProviderr(String url) async {
     if (url.contains("http://") || url.contains("https://")) {
       return NetworkImage(url);
     } else {

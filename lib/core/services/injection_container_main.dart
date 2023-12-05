@@ -6,13 +6,13 @@ Future<void> init() async {
   final Box<bool> favoriteBooksBox =
       await Hive.openBox<bool>(favoriteBooksHiveBoxName);
   final Box<HiveBookModel> booksBox = await Hive.openBox(booksHiveBoxName);
+  final InternetConnection internetCheker = InternetConnection();
   sl
     ..registerFactory(() => BookReaderBloc(
           download: sl(),
           favoriteBook: sl(),
           getBooks: sl(),
           getFavoriteBooks: sl(),
-          getLocalBooks: sl(),
           removeBook: sl(),
           booksBox: sl(),
         ))
@@ -20,17 +20,15 @@ Future<void> init() async {
     ..registerLazySingleton(() => FavoriteBook(sl()))
     ..registerLazySingleton(() => GetBooks(sl()))
     ..registerLazySingleton(() => GetFavoriteBooks(sl()))
-    ..registerLazySingleton(() => GetLocalBooks(sl()))
     ..registerLazySingleton(() => RemoveBook(sl()))
-    ..registerLazySingleton<LocalBookRepository>(
-        () => LocalBookRepositoryImpl(sl()))
-    ..registerLazySingleton<RemoteBookRepository>(
-        () => RemoteBookRemositoryImpl(sl()))
-    ..registerLazySingleton<BookLocalDataSource>(
-        () => BookLocalDataSourceImpl(favoriteBooksBox: sl(), booksBox: sl()))
-    ..registerLazySingleton<BookRemoteDataSource>(
-        () => BookRemoteDataSourceImpl(sl()))
+    ..registerLazySingleton<BooksRepository>(() => BooksRepositoryImpl(sl()))
+    ..registerLazySingleton<BookDataSource>(() => BookDataSourceImpl(
+        favoriteBooksBox: sl(),
+        booksBox: sl(),
+        internetChecker: sl(),
+        client: sl()))
     ..registerLazySingleton(http.Client.new)
     ..registerLazySingleton(() => favoriteBooksBox)
-    ..registerLazySingleton(() => booksBox);
+    ..registerLazySingleton(() => booksBox)
+    ..registerLazySingleton(() => internetCheker);
 }

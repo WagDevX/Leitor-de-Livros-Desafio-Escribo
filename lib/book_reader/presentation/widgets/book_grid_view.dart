@@ -1,9 +1,13 @@
+import 'dart:io';
+
+import 'package:ebook_reader/book_reader/domain/entities/book.dart';
 import 'package:ebook_reader/book_reader/presentation/bloc/book_reader_bloc.dart';
 import 'package:ebook_reader/core/services/injection_container.dart';
 import 'package:ebook_reader/core/utils/core_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:vocsy_epub_viewer/epub_viewer.dart';
 
 class BooksGridView extends StatefulWidget {
@@ -16,13 +20,37 @@ class BooksGridView extends StatefulWidget {
 class _BooksGridViewState extends State<BooksGridView> {
   late Box<bool> favorites;
 
-  List<dynamic> booksList = [];
+  List<Book> booksList = [];
+
+  late bool hasInternet;
+
+  void checkConnection() async {
+    hasInternet = await InternetConnection().hasInternetAccess;
+    print(hasInternet);
+    setState(() {});
+  }
 
   void getBooks() async {
-    context.read<BookReaderBloc>().add(const GetRemoteBooksEvent());
-    context.read<BookReaderBloc>().add(const GetLocalBooksEvent());
+    checkConnection();
+    context.read<BookReaderBloc>().add(const GetBooksEvent());
     final box = sl<Box<bool>>();
     favorites = box;
+  }
+
+  void openBook(path) {
+    try {
+      VocsyEpub.setConfig(
+        themeColor: Theme.of(context).primaryColor,
+        identifier: "iosBook",
+        scrollDirection: EpubScrollDirection.ALLDIRECTIONS,
+        allowSharing: true,
+        enableTts: true,
+        nightMode: true,
+      );
+      VocsyEpub.open(path);
+    } catch (e) {
+      CoreUtils.showSnackBar(context, e.toString(), false);
+    }
   }
 
   @override
@@ -34,6 +62,9 @@ class _BooksGridViewState extends State<BooksGridView> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<BookReaderBloc, BookReaderState>(listener: (_, state) {
+      if (state is DownloadBooksError) {
+        CoreUtils.showSnackBar(context, state.message, false);
+      }
       if (state is Downloading) {
         CoreUtils.showSnackBar(context, "Baixando!", true);
       }
@@ -41,41 +72,22 @@ class _BooksGridViewState extends State<BooksGridView> {
         CoreUtils.showSnackBar(context, "Abrindo livro!", false);
       }
       if (state is Downloaded) {
-        CoreUtils.showSnackBar(context, "Livro baixado!", false);
-        VocsyEpub.setConfig(
-          themeColor: Theme.of(context).primaryColor,
-          identifier: "iosBook",
-          scrollDirection: EpubScrollDirection.ALLDIRECTIONS,
-          allowSharing: true,
-          enableTts: true,
-          nightMode: true,
-        );
-        VocsyEpub.open(state.downloadedBook.downloadUrl);
+        openBook(state.downloadedBook.downloadUrl);
+        ScaffoldMessenger.of(context).removeCurrentSnackBar();
       }
       if (state is BookOpenedFromDisk) {
-        CoreUtils.showSnackBar(context, "Abrindo livro!", false);
-        VocsyEpub.setConfig(
-          themeColor: Theme.of(context).primaryColor,
-          identifier: "iosBook",
-          scrollDirection: EpubScrollDirection.ALLDIRECTIONS,
-          allowSharing: true,
-          enableTts: true,
-          nightMode: true,
-        );
-        VocsyEpub.open(state.openedBook.downloadUrl);
+        openBook(state.openedBook.downloadUrl);
+        ScaffoldMessenger.of(context).removeCurrentSnackBar();
       }
-      if (state is RemoteBooksLoaded) {
+      if (state is BooksLoaded) {
         booksList = state.book;
       }
-      if (state is LocalBooksLoaded) {
-        booksList = state.book;
-      }
-      if (state is GetRemoteBooksError) {
+      if (state is GetBooksError) {
         if (booksList.isEmpty) {
           return CoreUtils.showSnackBar(context, state.message, false);
         }
       }
-      if (state is FavorieBookError) {
+      if (state is FavoriteBookError) {
         CoreUtils.showSnackBar(context, state.message, false);
       }
     }, builder: (_, state) {
@@ -89,6 +101,7 @@ class _BooksGridViewState extends State<BooksGridView> {
           itemCount: booksList.length,
           itemBuilder: (_, index) {
             final book = booksList[index];
+            print(book.coverUrl);
             return Column(
               key: Key(index.toString()),
               mainAxisSize: MainAxisSize.min,
@@ -115,9 +128,13 @@ class _BooksGridViewState extends State<BooksGridView> {
                         borderRadius:
                             const BorderRadius.all(Radius.circular(5)),
                         border: Border.all(width: 1),
-                        image: DecorationImage(
-                            fit: BoxFit.fill,
-                            image: CoreUtils.getImageProviderr(book.coverUrl)),
+                        image: hasInternet
+                            ? DecorationImage(
+                                fit: BoxFit.fill,
+                                image: NetworkImage(book.coverUrl))
+                            : DecorationImage(
+                                fit: BoxFit.fill,
+                                image: FileImage(File(book.coverUrl))),
                       ),
                       child: Stack(children: [
                         Positioned(

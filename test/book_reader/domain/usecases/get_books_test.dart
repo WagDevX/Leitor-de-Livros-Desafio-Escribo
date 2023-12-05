@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:ebook_reader/book_reader/domain/entities/book.dart';
-import 'package:ebook_reader/book_reader/domain/repositories/remote_book_repository.dart';
+import 'package:ebook_reader/book_reader/domain/repositories/books_repository.dart';
 import 'package:ebook_reader/book_reader/domain/usecases/get_books.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -8,11 +8,11 @@ import 'package:mocktail/mocktail.dart';
 import 'book_repository_mocks.dart';
 
 void main() {
-  late RemoteBookRepository repository;
+  late BooksRepository repository;
   late GetBooks usecase;
 
   setUp(() {
-    repository = MockRemoteBookRepository();
+    repository = MockBookRepository();
     usecase = GetBooks(repository);
   });
 

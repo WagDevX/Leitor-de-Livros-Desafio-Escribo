@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:ebook_reader/book_reader/data/models/hive_book_model.dart';
 import 'package:ebook_reader/book_reader/domain/entities/book.dart';
 import 'package:ebook_reader/core/utils/typedef.dart';
 
@@ -12,6 +13,16 @@ class BookModel extends Book {
     required super.downloadUrl,
     super.favorite = false,
   });
+
+  BookModel.fromHiveModel(HiveBookModel hiveBook)
+      : this(
+          id: hiveBook.id ?? 0, // Provide a default value if id is nullable
+          title: hiveBook.title ?? "",
+          author: hiveBook.author ?? "",
+          coverUrl: hiveBook.coverUrl ?? "",
+          downloadUrl: hiveBook.downloadUrl ?? "",
+          favorite: hiveBook.favorite ?? false,
+        );
 
   const BookModel.empty()
       : this(
